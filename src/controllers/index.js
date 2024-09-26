@@ -6,14 +6,25 @@ class IndexController {
     }
 
     postLogin(req, res) {
-        const { username, password } = req.body;
+        let { username, password } = req.body;
+
+        // Minimal sanitization
+        // username = username.replace(/'/g, "");
+        // password = password.replace(/'/g, "");
+
         const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+
+        console.log(query)
 
         db.get(query, (err, row) => {
             if (err) {
                 res.status(500).send('Internal Server Error');
             } else if (row) {
-                res.send('Login successful! Here is your flag: FLAG{SQL_INJECTION_SUCCESS}');
+                if (row.role === 'admin') {
+                    res.send('Login successful! Here is your flag: FLAG{SQL_INJECTION_SUCCESS}');
+                } else {
+                    res.send('Login successful! How can we help you today?');
+                }
             } else {
                 res.send('Invalid credentials');
             }
